@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-migration-job
+spec:
+  template:
+    spec:
+      containers:
+      - name: db-migration
+        image: postgres:14
+        command: ["sh", "-c"]
+        args:
+          - |
+            psql -h $(POSTGRES_HOST) -U $(POSTGRES_USER) -d $(POSTGRES_DB) -f /mnt/sql/migration.sql
+        env:
+        - name: PGPASSWORD
+          value: "$(POSTGRES_PASSWORD)"
+        envFrom:
+            - configMapRef:
+                name: postgres-secret
+        volumeMounts:
+        - name: sql-volume
+          mountPath: /mnt/sql
+
+      restartPolicy: Never
+      volumes:
+      - name: sql-volume
+        configMap:
+          name: init-db-configmap  # Reference to your ConfigMap
+          items:
+          - key: migration.sql
+            path: migration.sql 

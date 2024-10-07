@@ -1,0 +1,49 @@
+front:
+  name: grogu-front
+  image: mmko67/grogu-front
+  version: 0.1.0
+  components: front
+  servicePort: 9071
+  containerPort: 8080
+  replicas: 1
+  limits:
+    memory: "128Mi"
+    cpu: "100m"
+
+back:
+  name: grogu-back
+  image: mmko67/grogu-api
+  version: 0.0.6
+  components: back
+  servicePort: 9070
+  containerPort: 8080
+  replicas: 1
+  limits:
+    memory: "500Mi"
+    cpu: "200m"
+
+auth:
+  name: keycloak-auth
+  image: quay.io/keycloak/keycloak
+  version: 25.0.6
+  components: auth
+  servicePort: 8080
+  containerPort: 8080
+  # replicas: 1
+  # limits:
+  #   memory: "500Mi"
+  #   cpu: "200m"
+
+postgres:
+  name: postgres
+  image: postgres
+  version: 16.0
+  components: postgres
+  port: 5432
+  limits:
+    memory: "500Mi"
+    cpu: "300m"
+  envs:
+    - POSTGRES_DB
+    - POSTGRES_USER
+    - POSTGRES_PASSWORD

@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.auth.name }}-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.auth.components }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.auth.components }}
+    spec:
+      containers:
+        - name: {{ .Values.auth.name }}
+          image: "{{ .Values.auth.image }}:{{ .Values.auth.version }}"
+          args: ["start-dev", "--import-realm"]
+          env:
+            - name: KEYCLOAK_ADMIN
+              value: "admin"
+            - name: KEYCLOAK_ADMIN_PASSWORD
+              value: "admin"
+            - name: DB_VENDOR
+              value: "postgres"
+            - name: DB_ADDR
+              value: "postgres"
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_DATABASE
+              value: "ps_db"
+            - name: DB_SCHEMA
+              value: "public"
+            - name: DB_USER
+              value: "ps_user"
+            - name: DB_PASSWORD
+              value: "SecurePassword"
+          ports:
+            - name: http
+              containerPort: {{ .Values.auth.containerPort }}
+          volumeMounts:
+            - name: "realm-file"
+              mountPath: "/opt/keycloak/data/import"
+          readinessProbe:
+            httpGet:
+              path: /realms/master
+              port: {{ .Values.auth.containerPort }}
+      volumes:
+        - name: "realm-file"
+          configMap:
+            name: keycloak-init-configmap
+            items:
+            - key: realm-export.json
+              path: realm-export.json 
