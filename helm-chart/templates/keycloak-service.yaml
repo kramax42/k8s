@@ -3,6 +3,7 @@ kind: Service
 metadata:
   name: {{ .Values.auth.name }}-clusterip
 spec:
+  type: ClusterIP
   ports:
     - name: http
       port: {{ .Values.auth.servicePort }}
